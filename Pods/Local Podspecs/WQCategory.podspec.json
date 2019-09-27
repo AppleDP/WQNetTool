@@ -1,0 +1,16 @@
+{
+  "name": "WQCategory",
+  "authors": "AppleDP",
+  "homepage": "https://github.com/appledp",
+  "version": "1.0.0",
+  "summary": "s.name",
+  "description": "扩展分类",
+  "source": {
+    "path": "WQCategory"
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "requires_arc": true,
+  "source_files": "WQCategory/**/*.{h,m}"
+}

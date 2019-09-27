@@ -1,0 +1,16 @@
+{
+  "name": "WQRuntimeKit",
+  "authors": "AppleDP",
+  "homepage": "https://github.com/appledp",
+  "version": "1.0.0",
+  "summary": "s.name",
+  "description": "Runtime",
+  "source": {
+    "path": "WQRuntimeKit"
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "requires_arc": true,
+  "source_files": "WQRuntimeKit/**/*.{h,m}"
+}

@@ -1,0 +1,1 @@
+../../../../LocalPods/WQCategory/UIDevice+WQExtension.h

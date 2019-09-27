@@ -1,0 +1,8 @@
+/* 
+  InfoPlist.strings
+  WQNetTool
+
+  Created by iOS on 2019/9/1.
+  Copyright © 2019 shenbao. All rights reserved.
+*/
+CFBundleDisplayName = "无线调试工具";
