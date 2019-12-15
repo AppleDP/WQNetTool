@@ -361,6 +361,7 @@
     receiveTV.placeholder = @"接收数据显示";
     receiveTV.weight = 1.0;
     receiveTV.widthSize.equalTo(rootLatout.widthSize);
+    receiveTV.heightSize.min(100);
     receiveTV.editable = NO;
     [rootLatout addSubview:receiveTV];
     self.receiveTV = receiveTV;

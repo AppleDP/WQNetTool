@@ -11,6 +11,7 @@
 		8131C383231B9BFA009FD760 /* WQTcpToolVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8131C382231B9BFA009FD760 /* WQTcpToolVC.m */; };
 		8131C386231BC25E009FD760 /* WQTcpServerVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8131C385231BC25E009FD760 /* WQTcpServerVC.m */; };
 		8131C389231BC27C009FD760 /* WQTcpClientVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8131C388231BC27C009FD760 /* WQTcpClientVC.m */; };
+		813A6BC223A23D9F0023DBE4 /* WQHttpVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 813A6BC123A23D9F0023DBE4 /* WQHttpVC.m */; };
 		8182D787230F8C83008AAC41 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8182D786230F8C83008AAC41 /* AppDelegate.m */; };
 		8182D78A230F8C83008AAC41 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8182D789230F8C83008AAC41 /* ViewController.m */; };
 		8182D78D230F8C83008AAC41 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8182D78B230F8C83008AAC41 /* Main.storyboard */; };
@@ -54,6 +55,8 @@
 		8131C385231BC25E009FD760 /* WQTcpServerVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WQTcpServerVC.m; sourceTree = "<group>"; };
 		8131C387231BC27C009FD760 /* WQTcpClientVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WQTcpClientVC.h; sourceTree = "<group>"; };
 		8131C388231BC27C009FD760 /* WQTcpClientVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WQTcpClientVC.m; sourceTree = "<group>"; };
+		813A6BC023A23D9F0023DBE4 /* WQHttpVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WQHttpVC.h; sourceTree = "<group>"; };
+		813A6BC123A23D9F0023DBE4 /* WQHttpVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WQHttpVC.m; sourceTree = "<group>"; };
 		8182D782230F8C83008AAC41 /* WQNetTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WQNetTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8182D785230F8C83008AAC41 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		8182D786230F8C83008AAC41 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -132,6 +135,15 @@
 			path = Tcp;
 			sourceTree = "<group>";
 		};
+		813A6BBF23A23D510023DBE4 /* Http */ = {
+			isa = PBXGroup;
+			children = (
+				813A6BC023A23D9F0023DBE4 /* WQHttpVC.h */,
+				813A6BC123A23D9F0023DBE4 /* WQHttpVC.m */,
+			);
+			path = Http;
+			sourceTree = "<group>";
+		};
 		8182D779230F8C83008AAC41 = {
 			isa = PBXGroup;
 			children = (
@@ -158,6 +170,7 @@
 			isa = PBXGroup;
 			children = (
 				81C1B25F2320AE460038B1E3 /* Contanst */,
+				813A6BBF23A23D510023DBE4 /* Http */,
 				81C1B2682320F6770038B1E3 /* Bluetooth */,
 				8131C380231B9BDA009FD760 /* Tcp */,
 				81E4E9222318EF0A00246E6B /* Udp */,
@@ -425,6 +438,7 @@
 				8131C386231BC25E009FD760 /* WQTcpServerVC.m in Sources */,
 				8182D7C5230F97E8008AAC41 /* WQUdpVC.m in Sources */,
 				8182D78A230F8C83008AAC41 /* ViewController.m in Sources */,
+				813A6BC223A23D9F0023DBE4 /* WQHttpVC.m in Sources */,
 				81C1B26E2320F8920038B1E3 /* WQBleCentralVC.m in Sources */,
 				8182D795230F8C85008AAC41 /* main.m in Sources */,
 				81C1B2712320F8B00038B1E3 /* WQBlePeripheralVC.m in Sources */,

@@ -18,7 +18,6 @@
 
 @implementation WQBleCentralVC
 - (void)loadView {
-    __weak typeof(self) wself = self;
     MyLinearLayout *rootLatout = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Vert];
     rootLatout.backgroundColor = wq_colorWithHex(0xFFFFFF, 1.0);
     rootLatout.insetsPaddingFromSafeArea = UIRectEdgeAll;

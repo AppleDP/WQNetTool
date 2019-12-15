@@ -26,6 +26,14 @@
 @property (nonatomic, weak) WQTcpServerVC *vc;
 @end
 
+@interface WQTcpServerFilterDelegateObject : NSObject
+<
+    UITableViewDelegate,
+    UITableViewDataSource
+>
+@property (nonatomic, weak) WQTcpServerVC *vc;
+@end
+
 @interface WQTcpServerReceiveDelegateObject : NSObject
 <
     UITextViewDelegate
@@ -34,6 +42,11 @@
 @end
 
 @interface WQClientCell : UITableViewCell
+@property (nonatomic, weak, readonly) UILabel *titleLab;
+@property (nonatomic, strong, readonly) MyLinearLayout *rootLayout;
+@end
+
+@interface WQTcpServerFilterCell : UITableViewCell
 @property (nonatomic, weak, readonly) UILabel *titleLab;
 @property (nonatomic, strong, readonly) MyLinearLayout *rootLayout;
 @end
@@ -76,6 +89,12 @@
 @property (nonatomic, assign) WQNetToolEncoding sendEncoding;
 /** 显示类型 */
 @property (nonatomic, assign) WQNetToolEncoding receiveEncoding;
+/** 过滤数组 */
+@property (nonatomic, strong) NSMutableArray<NSString *> *filterArr;
+/** 过滤列表 TableView 代理 */
+@property (nonatomic, strong) WQTcpServerFilterDelegateObject *filterTableDelegate;
+/** 过滤布局 */
+@property (nonatomic, weak) MyLinearLayout *filterLayout;
 @end
 
 @implementation WQTcpServerVC
@@ -102,14 +121,27 @@
     return _clients;
 }
 
+- (NSMutableArray<NSString *> *)filterArr {
+    if (_filterArr == nil) {
+        _filterArr = [[NSMutableArray alloc] init];
+    }
+    return _filterArr;
+}
+
 - (void)loadView {
     __weak typeof(self) wself = self;
+    UIScrollView *scrollView = [UIScrollView new];
+    scrollView.backgroundColor = [UIColor whiteColor];
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    self.view = scrollView;
+    
     MyLinearLayout *rootLatout = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Vert];
     rootLatout.backgroundColor = wq_colorWithHex(0xFFFFFF, 1.0);
-    rootLatout.insetsPaddingFromSafeArea = UIRectEdgeAll;
     rootLatout.padding = UIEdgeInsetsMake(10, 10, 10, 10);
     rootLatout.subviewVSpace = 10;
-    self.view = rootLatout;
+    rootLatout.myHorzMargin = 0;
+    rootLatout.heightSize.lBound(scrollView.heightSize, 0, 1);
+    [scrollView addSubview:rootLatout];
     
     // 服务器信息
     MyLinearLayout *layout0 = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Horz];
@@ -239,7 +271,7 @@
     clientTable.separatorStyle = UITableViewCellSeparatorStyleNone;
     [clientTable registerClass:[WQClientCell class] forCellReuseIdentifier:NSStringFromClass([WQClientCell class])];
     clientTable.widthSize.equalTo(rootLatout.widthSize);
-    clientTable.heightSize.equalTo(@100);
+    clientTable.heightSize.equalTo(@80);
     [clientTable setViewLayoutCompleteBlock:^(MyBaseLayout *layout, UIView *v) {
         v.layer.cornerRadius = 3.0;
     }];
@@ -392,6 +424,40 @@
     [layout1 addSubview:inputTV];
     [layout1 addSubview:sendBtn];
     
+    // 过滤区
+    MyLinearLayout *filterLayout = [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Vert];
+    filterLayout.wrapContentHeight = YES;
+    filterLayout.subviewHSpace = 10;
+    filterLayout.subviewVSpace = 10;
+    filterLayout.visibility = MyVisibility_Gone;
+    filterLayout.widthSize.equalTo(rootLatout.widthSize);
+    [rootLatout addSubview:filterLayout];
+    self.filterLayout = filterLayout;
+    
+    UILabel *filterLab = [UILabel new];
+    filterLab.wrapContentSize = YES;
+    filterLab.font = [UIFont systemFontOfSize:18];
+    filterLab.text = @"过滤条件:";
+    [filterLayout addSubview:filterLab];
+    
+    WQTcpServerFilterDelegateObject *filterTableDelegate = [[WQTcpServerFilterDelegateObject alloc] init];
+    filterTableDelegate.vc = self;
+    self.filterTableDelegate = filterTableDelegate;
+    UITableView *filterTable = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+    filterTable.delegate = filterTableDelegate;
+    filterTable.dataSource = filterTableDelegate;
+    filterTable.layer.borderColor = wq_colorWithHex(0x333333, 1.0).CGColor;
+    filterTable.layer.borderWidth = 1.0;
+    filterTable.delaysContentTouches = NO;
+    filterTable.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [filterTable registerClass:[WQTcpServerFilterCell class] forCellReuseIdentifier:NSStringFromClass([WQTcpServerFilterCell class])];
+    filterTable.widthSize.equalTo(filterLayout.widthSize);
+    filterTable.heightSize.equalTo(@80);
+    [filterTable setViewLayoutCompleteBlock:^(MyBaseLayout *layout, UIView *v) {
+        v.layer.cornerRadius = 3.0;
+    }];
+    [filterLayout addSubview:filterTable];
+    
     // 接收区
     UILabel *receiveLab = [[UILabel alloc] init];
     receiveLab.wrapContentSize = YES;
@@ -418,6 +484,7 @@
     receiveTV.placeholder = @"接收数据显示";
     receiveTV.weight = 1.0;
     receiveTV.widthSize.equalTo(rootLatout.widthSize);
+    receiveTV.heightSize.min(100);
     receiveTV.editable = NO;
     [rootLatout addSubview:receiveTV];
     self.receiveTV = receiveTV;
@@ -589,6 +656,48 @@
     recordBtn.widthSize.equalTo(recordBtn.widthSize).add(30);
     recordBtn.heightSize.equalTo(recordBtn.heightSize).add(20);
     [layout2 addSubview:recordBtn];
+    
+    UIButton *filterBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [filterBtn setTitle:@"过滤" forState:UIControlStateNormal];
+    [filterBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [filterBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
+    [filterBtn setBackgroundImage:[UIImage wq_imageWithColor:wq_colorWithRGB(110, 208, 47, 255) size:CGSizeMake(1, 1)] forState:UIControlStateNormal];
+    [filterBtn setViewLayoutCompleteBlock:^(MyBaseLayout *layout, UIView *v) {
+        v.layer.cornerRadius = 3.0;
+        v.layer.masksToBounds = YES;
+    }];
+    [filterBtn bk_addEventHandler:^(id sender) {
+        // 点击过滤
+        __strong typeof(wself) sself = wself;
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"添加过滤条件" preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定" style:sself.receiveEncoding == kBinarySystem ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            // 添加过滤条件
+            UITextField *filterTF = [[alert textFields] firstObject];
+            NSString *ipReg = @"^((25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))$";
+            NSPredicate *ipPredicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",ipReg];
+            if (filterTF.text.length > 0 && [ipPredicate evaluateWithObject:filterTF.text]) {
+                [sself.filterArr addObject:filterTF.text];
+                filterLayout.visibility = MyVisibility_Visible;
+                [filterTable reloadData];
+            }else {
+                [SVProgressHUD showErrorWithStatus:@"请输入正确的 ip"];
+            }
+        }];
+        UIAlertAction *cancleAction = [UIAlertAction actionWithTitle:@"取消" style:sself.receiveEncoding == kEncodingUTF_8 ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            // 取消
+        }];
+        [alert addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+            textField.placeholder = @"请输入过滤 ip";
+        }];
+        [alert addAction:okAction];
+        [alert addAction:cancleAction];
+        [sself.navigationController presentViewController:alert animated:YES completion:^{
+        }];
+    } forControlEvents:UIControlEventTouchUpInside];
+    filterBtn.widthSize.equalTo(filterBtn.widthSize).add(30);
+    filterBtn.heightSize.equalTo(filterBtn.heightSize).add(20);
+    [layout2 addSubview:filterBtn];
     
     UIButton *showReceiveStringBtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     [showReceiveStringBtn setTitle:@"16 进制显示" forState:UIControlStateNormal];
@@ -797,41 +906,44 @@ didWriteDataWithTag:(long)tag {
    didReadData:(NSData *)data
        withTag:(long)tag {
     wq_excuteOnMain(^{
-        NSMutableString *message = [[NSMutableString alloc] init];
-        if (self.showTimeBtn.selected) {
-            NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-            formatter.dateFormat = @"yyyy-MM-dd hh:mm:ss:SSS";
-            NSString *dateString = [formatter stringFromDate:[NSDate date]];
-            [message appendString:dateString];
-            [message appendString:@" "];
+        NSString *host = sock.connectedHost;
+        if (self.filterArr.count == 0 || [self.filterArr containsObject:host]) {
+            NSMutableString *message = [[NSMutableString alloc] init];
+            if (self.showTimeBtn.selected) {
+                NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+                formatter.dateFormat = @"yyyy-MM-dd hh:mm:ss:SSS";
+                NSString *dateString = [formatter stringFromDate:[NSDate date]];
+                [message appendString:dateString];
+                [message appendString:@" "];
+            }
+            if (self.showIpBtn.selected) {
+                [message appendString:host];
+                [message appendString:@" "];
+            }
+            if (self.showPortBtn.selected) {
+                [message appendFormat:@": %d",sock.connectedPort];
+                [message appendString:@" "];
+            }
+            switch (self.receiveEncoding) {
+                case kBinarySystem: {
+                    // Hex 字符串转码
+                    [message appendString:[NSString stringWithFormat:@"%@\n\n",data]];
+                }break;
+                case kEncodingUTF_8: {
+                    // UTF-8 编码
+                    [message appendString:[NSString stringWithFormat:@"%@\n\n",[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]]];
+                }break;
+                case kEncodingGB2312: {
+                    // GB2312 编码
+                    [message appendString:[NSString stringWithFormat:@"%@\n\n",[[NSString alloc] initWithData:data encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)]]];
+                }break;
+                    
+                default: {
+                    [message appendString:[NSString stringWithFormat:@"%@\n\n",data]];
+                }break;
+            }
+            [self showMessage:[message copy]];
         }
-        if (self.showIpBtn.selected) {
-            [message appendString:sock.connectedHost];
-            [message appendString:@" "];
-        }
-        if (self.showPortBtn.selected) {
-            [message appendFormat:@": %d",sock.connectedPort];
-            [message appendString:@" "];
-        }
-        switch (self.receiveEncoding) {
-            case kBinarySystem: {
-                // Hex 字符串转码
-                [message appendString:[NSString stringWithFormat:@"%@\n\n",data]];
-            }break;
-            case kEncodingUTF_8: {
-                // UTF-8 编码
-                [message appendString:[NSString stringWithFormat:@"%@\n\n",[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]]];
-            }break;
-            case kEncodingGB2312: {
-                // GB2312 编码
-                [message appendString:[NSString stringWithFormat:@"%@\n\n",[[NSString alloc] initWithData:data encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingGB_18030_2000)]]];
-            }break;
-                
-            default: {
-                [message appendString:[NSString stringWithFormat:@"%@\n\n",data]];
-            }break;
-        }
-        [self showMessage:[message copy]];
     });
     [sock readDataWithTimeout:-1 tag:0];
 }
@@ -867,6 +979,59 @@ static const void *clientPortKey = &clientPortKey;
 - (int)clientPort {
     NSNumber *num = objc_getAssociatedObject(self, clientPortKey);
     return [num intValue];
+}
+@end
+
+
+@implementation WQTcpServerFilterDelegateObject
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(nonnull UITableView *)tableView
+ numberOfRowsInSection:(NSInteger)section {
+    return self.vc.filterArr.count;
+}
+
+- (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView
+                 cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    WQTcpServerFilterCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([WQTcpServerFilterCell class]) forIndexPath:indexPath];
+    NSString *filter;
+    @synchronized (self.vc.filterArr) {
+        filter = self.vc.filterArr[indexPath.row];
+    }
+    cell.titleLab.text = filter;
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView
+didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+- (BOOL)tableView:(UITableView *)tableView
+canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return YES;
+}
+
+- (NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView
+                  editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewRowAction *deleteAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive title:@"删除" handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath) {
+        // 删除数组中的对应数据,注意cityList 要是可变的集合才能够进行删除或新增操作
+        @synchronized (self.vc.filterArr) {
+            [self.vc.filterArr removeObjectAtIndex:indexPath.row];
+            
+            if (self.vc.filterArr.count == 0) {
+                self.vc.filterLayout.visibility = MyVisibility_Gone;
+            }
+        }
+        //tableView刷新方式   设置tableView带动画效果 删除数据
+        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        
+        //取消编辑状态
+        [tableView setEditing:NO animated:YES];
+    }];
+    return @[deleteAction];
 }
 @end
 
@@ -957,7 +1122,44 @@ canEditRowAtIndexPath:(NSIndexPath *)indexPath {
 
         UILabel *titleLab = [[UILabel alloc] init];
         titleLab.textColor = wq_colorWithHex(0x333333, 1.0);
-        titleLab.font = [UIFont systemFontOfSize:18];
+        titleLab.font = [UIFont systemFontOfSize:12];
+        titleLab.heightSize.equalTo(titleLab.heightSize).add(10);
+        titleLab.widthSize.equalTo(_rootLayout.widthSize);
+        [_rootLayout addSubview:titleLab];
+        _titleLab = titleLab;
+    }
+    return self;
+}
+
+- (CGSize)systemLayoutSizeFittingSize:(CGSize)targetSize withHorizontalFittingPriority:(UILayoutPriority)horizontalFittingPriority verticalFittingPriority:(UILayoutPriority)verticalFittingPriority {
+    if (@available(iOS 11.0, *)) {
+        return [self.rootLayout sizeThatFits:CGSizeMake(targetSize.width - self.safeAreaInsets.left - self.safeAreaInsets.right, targetSize.height)];
+    } else {
+        return [self.rootLayout sizeThatFits:targetSize];
+    }
+}
+@end
+
+
+@implementation WQTcpServerFilterCell
+- (instancetype)initWithStyle:(UITableViewCellStyle)style
+              reuseIdentifier:(NSString *)reuseIdentifier {
+    if ([super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+        _rootLayout= [MyLinearLayout linearLayoutWithOrientation:MyOrientation_Horz];
+        _rootLayout.leftPadding = 15;
+        _rootLayout.topPadding = 5;
+        _rootLayout.bottomPadding = 5;
+        _rootLayout.cacheEstimatedRect = YES;
+        _rootLayout.wrapContentHeight = YES;
+        _rootLayout.widthSize.equalTo(self.contentView.widthSize);
+        MyBorderline *bottomLine = [[MyBorderline alloc] init];
+        bottomLine.color = wq_colorWithHex(0x666666, 1.0);
+        _rootLayout.bottomBorderline = bottomLine;
+        [self.contentView addSubview:_rootLayout];
+        
+        UILabel *titleLab = [[UILabel alloc] init];
+        titleLab.textColor = wq_colorWithHex(0x333333, 1.0);
+        titleLab.font = [UIFont systemFontOfSize:12];
         titleLab.heightSize.equalTo(titleLab.heightSize).add(10);
         titleLab.widthSize.equalTo(_rootLayout.widthSize);
         [_rootLayout addSubview:titleLab];

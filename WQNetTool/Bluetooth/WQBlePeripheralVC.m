@@ -9,7 +9,6 @@
 #import "WQBlePeripheralVC.h"
 
 @interface WQBlePeripheralVC ()
-
 @end
 
 @implementation WQBlePeripheralVC
