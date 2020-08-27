@@ -29,7 +29,7 @@ PODS:
   - BlocksKit/UIKit (2.2.5):
     - BlocksKit/Core
     - BlocksKit/DynamicDelegate
-  - CocoaAsyncSocket (7.6.3)
+  - CocoaAsyncSocket (7.6.4)
   - IQKeyboardManager (5.0.8)
   - MyLayout (1.8.0)
   - SVProgressHUD (2.2.5)
@@ -69,7 +69,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AFNetworking: b6f891fdfaed196b46c7a83cf209e09697b94057
   BlocksKit: 7f422b971407001178d181a43b99014ea2591fe6
-  CocoaAsyncSocket: eafaa68a7e0ec99ead0a7b35015e0bf25d2c8987
+  CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   IQKeyboardManager: 266cb7b1d11f94a3e71229d77f960f9a1b538e5b
   MyLayout: 1dcc9721bca2288bc7afd591a54242be5b36c528
   SVProgressHUD: 1428aafac632c1f86f62aa4243ec12008d7a51d6
