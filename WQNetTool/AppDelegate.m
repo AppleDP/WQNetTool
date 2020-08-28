@@ -22,13 +22,13 @@
     // 键盘遮挡监听
     [[IQKeyboardManager sharedManager] setToolbarManageBehaviour:IQAutoToolbarBySubviews];
     [IQKeyboardManager sharedManager].enableAutoToolbar = NO;
-    [[IQKeyboardManager sharedManager] setKeyboardDistanceFromTextField:10.0];
+    [[IQKeyboardManager sharedManager] setKeyboardDistanceFromTextField:20.0];
     
     // 挡板样式
     [SVProgressHUD setMinimumDismissTimeInterval:2.0];
     [SVProgressHUD setFadeOutAnimationDuration:0.3];
     [SVProgressHUD setFadeInAnimationDuration:0.3];
-    [SVProgressHUD setDefaultStyle:SVProgressHUDStyleCustom];
+    [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
     [SVProgressHUD setBackgroundColor:[UIColor whiteColor]];
     [SVProgressHUD setDefaultAnimationType:SVProgressHUDAnimationTypeFlat];
     [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeGradient];
